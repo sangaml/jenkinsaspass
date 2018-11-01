@@ -92,6 +92,12 @@
           "description": "Load Balancer name"
         }
       },
+      "customfile": {
+        "type": "string",
+        "metadata": {
+          "description": "File Name"
+        }
+      },
       "nicNamePrefix": {
         "type": "string",
         "defaultValue": "nic",
@@ -143,6 +149,7 @@
       "jumpsubnetPrefix": "10.0.1.0/24",
       "extentionname": "mycustomscript",
       "publicIPAddressType": "Dynamic",
+      "jumppublicIPAddressType": "Dynamic",
       "jumpstorageAccountType": "Standard_LRS",
       "jumpnetworkSecurityGroupName": "jumpnsg",
       "jumpsubnetName": "subnet2",
@@ -194,7 +201,7 @@
         "name": "[parameters('jumppublicIPAddressName')]",
         "location": "[resourceGroup().location]",
         "properties": {
-          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "publicIPAllocationMethod": "[variables('jumppublicIPAddressType')]",
           "dnsSettings": {
             "domainNameLabel": "[parameters('jumpdnsNameforLBIP')]"
           }
@@ -370,6 +377,7 @@
           "count": "[variables('numberOfInstances')]"
         },
         "dependsOn": [
+            "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('jumppublicIPAddressName'))]",
           "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
         ],
         "properties": {
@@ -378,6 +386,9 @@
               "name": "jumpipconfig1",
               "properties": {
                   "privateIPAllocationMethod": "Dynamic",
+                  "publicIPAddress": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('jumppublicIPAddressName'))]"
+                  },
                 "subnet": {
                   "id": "[variables('jumpsubnetRef')]"
                 }
@@ -558,7 +569,7 @@
         "apiVersion": "2017-03-30",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/',parameters('vmNamePrefix'))]"
+          "[concat('Microsoft.Compute/virtualMachines/myVM0')]"
         ],
         "properties": {
           "publisher": "Microsoft.Compute",
@@ -566,8 +577,7 @@
           "typeHandlerVersion": "1.9",
           "autoUpgradeMinorVersion": true,
           "settings": {
-            "fileUris": [
-              "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/installjenkins.ps1" 
+            "fileUris": [ "[parameters('customfile')]" 
             ],
             "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File installjenkins.ps1"
           }
@@ -587,6 +597,7 @@
         "dependsOn": [
           "[concat('Microsoft.Storage/storageAccounts/', parameters('jumpstorageAccountName'))]",
           "[concat('Microsoft.Network/networkInterfaces/', parameters('jumpnicNamePrefix'), copyindex())]"
+        
         ],
         "properties": {
           "hardwareProfile": {
