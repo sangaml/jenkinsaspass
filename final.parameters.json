@@ -1,0 +1,31 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "storageAccountName": {
+        "value": "vmlbdced688aw"
+      },
+      "adminUsername": {
+        "value": "admin123"
+      },
+      "adminPassword": {
+        "value": "Admin123_!"
+      },
+      "dnsNameforLBIP": {
+        "value": "vmlb64e71a665868"
+      },
+      "jumpadminUsername": {
+        "value": "jumpuser"
+      },
+      "jumpadminPassword": {
+        "value": "Password@123"
+      },
+      "jumpdnsNameforLBIP": {
+        "value": "vmlb64e71a66586"
+      },
+      "jumpstorageAccountName": {
+        "value": "vmlbdced688awwqq"
+
+      }
+    }
+  }
