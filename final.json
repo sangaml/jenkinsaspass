@@ -1,0 +1,628 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "storageAccountName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of storage account"
+        }
+      },
+      "jumpstorageAccountName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of storage account"
+        }
+      },
+      "adminUsername": {
+        "type": "string",
+        "metadata": {
+          "description": "Admin username"
+        }
+      },
+      "jumpadminUsername": {
+        "type": "string",
+        "metadata": {
+          "description": "Admin username"
+        }
+      },
+      "jumpadminPassword": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Admin password"
+        }
+      },
+      "adminPassword": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Admin password"
+        }
+      },
+      "dnsNameforLBIP": {
+        "type": "string",
+        "metadata": {
+          "description": "DNS for Load Balancer IP"
+        }
+      },
+      "jumpdnsNameforLBIP": {
+        "type": "string",
+        "metadata": {
+          "description": "DNS for Load Balancer IP"
+        }
+      },
+      "vmNamePrefix": {
+        "type": "string",
+        "defaultValue": "myVM",
+        "metadata": {
+          "description": "Prefix to use for VM names"
+        }
+      },
+      "jumpvmNamePrefix": {
+        "type": "string",
+        "defaultValue": "jumpVM",
+        "metadata": {
+          "description": "Prefix to use for VM names"
+        }
+      },
+      "imagePublisher": {
+        "type": "string",
+        "defaultValue": "MicrosoftWindowsServer",
+        "metadata": {
+          "description": "Image Publisher"
+        }
+      },
+      "imageOffer": {
+        "type": "string",
+        "defaultValue": "WindowsServer",
+        "metadata": {
+          "description": "Image Offer"
+        }
+      },
+      "imageSKU": {
+        "type": "string",
+        "defaultValue": "2012-R2-Datacenter",
+        "metadata": {
+          "description": "Image SKU"
+        }
+      },
+      "lbName": {
+        "type": "string",
+        "defaultValue": "myLB",
+        "metadata": {
+          "description": "Load Balancer name"
+        }
+      },
+      "nicNamePrefix": {
+        "type": "string",
+        "defaultValue": "nic",
+        "metadata": {
+          "description": "Network Interface name prefix"
+        }
+      },
+      "jumpnicNamePrefix": {
+        "type": "string",
+        "defaultValue": "jumpnic",
+        "metadata": {
+          "description": "Network Interface name prefix"
+        }
+      },
+      "publicIPAddressName": {
+        "type": "string",
+        "defaultValue": "myPublicIP",
+        "metadata": {
+          "description": "Public IP Name"
+        }
+      },
+      "jumppublicIPAddressName": {
+        "type": "string",
+        "defaultValue": "jumpmyPublicIP",
+        "metadata": {
+          "description": "Public IP Name"
+        }
+      },
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "myVNET",
+        "metadata": {
+          "description": "VNET name"
+        }
+      },
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_A2",
+        "metadata": {
+          "description": "Size of the VM"
+        }
+      }
+    },
+    "variables": {
+      "storageAccountType": "Standard_LRS",
+      "addressPrefix": "10.0.0.0/16",
+      "subnetName": "Subnet-1",
+      "subnetPrefix": "10.0.0.0/24",
+      "jumpsubnetPrefix": "10.0.1.0/24",
+      "extentionname": "mycustomscript",
+      "publicIPAddressType": "Dynamic",
+      "jumpstorageAccountType": "Standard_LRS",
+      "jumpnetworkSecurityGroupName": "jumpnsg",
+      "jumpsubnetName": "subnet2",
+      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables ('subnetName'))]",
+      "jumpsubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables ('jumpsubnetName'))]",
+      "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]",
+      "jumppublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('jumppublicIPAddressName'))]",
+      "numberOfInstances": 1,
+      "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('lbName'))]",
+      "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
+      "networkSecurityGroupName": "softwareserver",
+      "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
+      "lbProbeID": "[concat(variables('lbID'),'/probes/tcpProbe')]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "name": "[parameters('storageAccountName')]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "accountType": "[variables('storageAccountType')]"
+        }
+      },
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "name": "[parameters('jumpstorageAccountName')]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "accountType": "[variables('jumpstorageAccountType')]"
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[parameters('publicIPAddressName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "dnsSettings": {
+            "domainNameLabel": "[parameters('dnsNameforLBIP')]"
+          }
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[parameters('jumppublicIPAddressName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "dnsSettings": {
+            "domainNameLabel": "[parameters('jumpdnsNameforLBIP')]"
+          }
+        }
+      },
+      {
+          "apiVersion": "2015-06-15",
+          "type": "Microsoft.Network/networkSecurityGroups",
+          "name": "[variables('networkSecurityGroupName')]",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "securityRules": [
+              {
+                "name": "first_rule",
+                "properties": {
+                  "description": "This is the first rule",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "3389",
+                  "destinationPortRange": "3389",
+                  "sourceAddressPrefix": "[variables('subnetPrefix')]",
+                  "destinationAddressPrefix": "[variables('subnetPrefix')]",
+                  "access": "Allow",
+                  "priority": 123,
+                  "direction": "Inbound"
+                }
+              },
+              {
+                "name": "Jenkins",
+                "properties": {
+                  "description": "This is the first rule",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "80",
+                  "destinationPortRange": "8080",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 124,
+                  "direction": "Inbound"
+                }
+              },
+              {
+                "name": "sonarqube",
+                "properties": {
+                  "description": "This is the first rule",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "8080",
+                  "destinationPortRange": "8081",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 125,
+                  "direction": "Inbound"
+                }
+              },
+              {
+                "name": "artifactory",
+                "properties": {
+                  "description": "This is the first rule",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "9090",
+                  "destinationPortRange": "9000",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 126,
+                  "direction": "Inbound"
+                }
+              }
+            ]
+          }
+        },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('jumpnetworkSecurityGroupName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "securityRules": [
+                {
+                  "name": "JumpServer",
+                  "properties": {
+                    "description": "Jump server",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "3389",
+                    "destinationPortRange": "3389",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 123,
+                    "direction": "Inbound"
+                  }
+                }
+            ]
+            }
+        },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[parameters('vnetName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+          "[concat('Microsoft.Network/networkSecurityGroups/', variables('jumpnetworkSecurityGroupName'))]"
+        ],
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[variables('addressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[variables('subnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('subnetPrefix')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+                }
+              }
+            },
+            {
+                "name": "[variables('jumpsubnetName')]",
+                "properties": {
+                  "addressPrefix": "[variables('jumpsubnetPrefix')]",
+                  "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpnetworkSecurityGroupName'))]"
+                  }
+                }
+              }
+           ]
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[concat(parameters('nicNamePrefix'), copyindex())]",
+        "location": "[resourceGroup().location]",
+        "copy": {
+          "name": "nicLoop",
+          "count": "[variables('numberOfInstances')]"
+        },
+        "dependsOn": [
+          "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+          "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                  "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[variables('subnetRef')]"
+                },
+                "loadBalancerBackendAddressPools": [
+                  {
+                    "id": "[concat(variables('lbID'), '/backendAddressPools/BackendPool1')]"
+                  }
+               ]
+               
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[concat(parameters('jumpnicNamePrefix'), copyindex())]",
+        "location": "[resourceGroup().location]",
+        "copy": {
+          "name": "nicLoop",
+          "count": "[variables('numberOfInstances')]"
+        },
+        "dependsOn": [
+          "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "jumpipconfig1",
+              "properties": {
+                  "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[variables('jumpsubnetRef')]"
+                }
+               
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "name": "[parameters('lbName')]",
+        "type": "Microsoft.Network/loadBalancers",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"
+        ],
+        "properties": {
+          "frontendIPConfigurations": [
+            {
+              "name": "LoadBalancerFrontEnd",
+              "properties": {
+                "publicIPAddress": {
+                  "id": "[variables('publicIPAddressID')]"
+                }
+              }
+            }
+          ],
+          "backendAddressPools": [
+            {
+              "name": "Backendpool1"
+          }
+          ],
+          "loadBalancingRules": [
+            {
+              "name": "LBRule",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('frontEndIPConfigID')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbPoolID')]"
+                },
+                "protocol": "Tcp",
+                "frontendPort": 80,
+                "backendPort": 8080,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID')]"
+                }
+              }
+            }, 
+            {
+              "name": "LBRule1",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('frontEndIPConfigID')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbPoolID')]"
+                },
+                "protocol": "Tcp",
+                "frontendPort": 8080,
+                "backendPort": 8081,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID')]"
+                }
+              }
+            },
+            {
+              "name": "LBRule2",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('frontEndIPConfigID')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbPoolID')]"
+                },
+                "protocol": "Tcp",
+                "frontendPort": 9090,
+                "backendPort": 9000,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID')]"
+                }
+              }
+            }
+          ],
+          "probes": [
+            {
+              "name": "sonar",
+              "properties": {
+                "protocol": "tcp",
+                "port": 8080,
+                "intervalInSeconds": 5,
+                "numberOfProbes": 2
+              }
+            },
+            {
+              "name": "artifac",
+              "properties": {
+                "protocol": "tcp",
+                "port": 8081,
+                "intervalInSeconds": 5,
+                "numberOfProbes": 2
+              }
+            },
+            {
+              "name": "tcpProbe",
+              "properties": {
+                "protocol": "tcp",
+                "port": 9000
+                ,
+                "intervalInSeconds": 5,
+                "numberOfProbes": 2
+              }
+            }
+          ]
+        }
+      },
+      
+      {
+        
+        "apiVersion": "2017-03-30",
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[concat(parameters('vmNamePrefix'), copyindex())]",
+        "copy": {
+          "name": "virtualMachineLoop",
+          "count": "[variables('numberOfInstances')]"
+        },
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+          "[concat('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'), copyindex())]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "Standard_A2"
+          },
+          "osProfile": {
+            "computerName": "[concat(parameters('vmNamePrefix'), copyIndex())]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[parameters('imagePublisher')]",
+              "offer": "[parameters('imageOffer')]",
+              "sku": "[parameters('imageSKU')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "createOption": "FromImage"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(parameters('nicNamePrefix'),copyindex()))]"
+              }
+            ]
+          },
+          "diagnosticsProfile": {
+            "bootDiagnostics": {
+              "enabled": "true",
+              "storageUri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net')]"
+            }
+          }
+        },
+        "resources": [
+      {
+        "type": "extensions",
+        "name": "[variables('extentionname')]",
+        "apiVersion": "2017-03-30",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/',parameters('vmNamePrefix'))]"
+        ],
+        "properties": {
+          "publisher": "Microsoft.Compute",
+          "type": "CustomScriptExtension",
+          "typeHandlerVersion": "1.9",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/installjenkins.ps1" 
+            ],
+            "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File installjenkins.ps1"
+          }
+        }
+      }
+    ]
+},
+      {
+        "apiVersion": "2016-04-30-preview",
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[concat(parameters('jumpvmNamePrefix'), copyindex())]",
+        "copy": {
+          "name": "virtualMachineLoop",
+          "count": "[variables('numberOfInstances')]"
+        },
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Storage/storageAccounts/', parameters('jumpstorageAccountName'))]",
+          "[concat('Microsoft.Network/networkInterfaces/', parameters('jumpnicNamePrefix'), copyindex())]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "Standard_A2"
+          },
+          "osProfile": {
+            "computerName": "[concat(parameters('jumpvmNamePrefix'), copyIndex())]",
+            "adminUsername": "[parameters('jumpadminUsername')]",
+            "adminPassword": "[parameters('jumpadminPassword')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[parameters('imagePublisher')]",
+              "offer": "[parameters('imageOffer')]",
+              "sku": "[parameters('imageSKU')]",
+              "version": "latest"
+            },
+            "osDisk": {
+              "createOption": "FromImage"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(parameters('jumpnicNamePrefix'),copyindex()))]"
+              }
+            ]
+          },
+          "diagnosticsProfile": {
+            "bootDiagnostics": {
+              "enabled": "true",
+              "storageUri": "[concat('http://',parameters('jumpstorageAccountName'),'.blob.core.windows.net')]"
+            }
+          }
+        }
+      }
+
+    ]
+  }
