@@ -1,5 +1,5 @@
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
-Start-BitsTransfer –Source 'https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-6.7.5.zip' `
+Start-BitsTransfer –Source 'https://jenkinsaspass.blob.core.windows.net/software/sonarqube-6.7.5.zip' `
 -Destination 'D:\'
 Start-BitsTransfer –Source 'https://jenkinsaspass.blob.core.windows.net/software/jre-8u191-windows-x64.exe' `
 -Destination 'D:\'
@@ -19,7 +19,7 @@ $ExeArgs = @(
 )
 Start-Process $Exe -ArgumentList $ExeArgs -NoNewWindow -Wait 
 Restart-Computer
-Start-Sleep 5
+Start-Sleep 300
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 function unzip {
@@ -28,7 +28,19 @@ function unzip {
 }
 unzip "D:\sonarqube-6.7.5.zip" "D:\"
 
-D:\sonarqube-6.7.5\bin\windows-x86-64\StartSonar.bat
+D:\sonarqube-6.7.5\bin\windows-x86-64\run.vb
 
 Write-Host "Login from browser with port 8080" -ForegroundColor Green 
-Write-Host "Login Username and PAssword is admin" -ForegroundColor Green
+Write-Host "Login Username and PAssword is admin" -ForegroundColor Green  
+
+
+
+
+
+
+
+
+
+
+
+
