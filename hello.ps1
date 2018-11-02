@@ -1,1 +1,1 @@
-Write-Host "Login from Browser" -ForegroundColor Green | Write-output D:\pradnesh.txt
+Write-Host "Login from Browser" -ForegroundColor Green | Output-File D:\pradnesh.txt
