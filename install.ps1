@@ -4,6 +4,6 @@ Start-BitsTransfer –Source 'https://jenkinsaspass.blob.core.windows.net/softwa
 cd D:\
 Start-Process jenkins.msi /qn 
 Start-Sleep 100
-$Password = Get-Content "C:\Program Files (x86)\Jenkins\secrets\initialAdminPassword"
-Write-Host "Login from Browser" -ForegroundColor Green  
-Write-Host "Initial Admin Password is "$Password"" -ForegroundColor Green
+#$Password = Get-Content "C:\Program Files (x86)\Jenkins\secrets\initialAdminPassword"
+#Write-Host "Login from Browser" -ForegroundColor Green  
+#Write-Host "Initial Admin Password is "$Password"" -ForegroundColor Green
