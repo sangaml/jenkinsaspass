@@ -1,1 +1,1 @@
-Write-Host "Login from Browser" -ForegroundColor Green | Output-File D:\pradnesh.txt
+Add-Content D:\sangam.txt "The End"
