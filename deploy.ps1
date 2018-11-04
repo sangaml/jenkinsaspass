@@ -15,8 +15,8 @@ $UserInputList = $Software.Split(",")| ForEach {
 New-AzureRmResourceGroup -Name loadbalancer -Location "centralus"
 $RG = "loadbalancer"
 New-AzureRmResourceGroupDeployment -Name loadbalancer -ResourceGroupName $RG `
- -TemplateUri "https://raw.githubusercontent.com/paddy6987/jenkinsaspass/master/final.json" `
- -TemplateParameterUri "https://raw.githubusercontent.com/paddy6987/jenkinsaspass/master/final.parameters.json"
+ -TemplateUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.json" `
+ -TemplateParameterUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.parameters.json"
  
 
 #vm creation
@@ -39,8 +39,8 @@ For ($i=0; $i -le $mystring.Count; $i++) {
 
   Artifactory {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
                -VMName $vm -Name "myCustom123" `
-               -FileUri "https://raw.githubusercontent.com/paddy6987/jenkinsaspass/master/installartifactory.ps1" `
-               -Run "installartifactory.ps1" `
+               -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/artifactory/install.ps1" `
+               -Run "install.ps1" `
                -Location $varloc 
                Write-Host "Login from browser with $IP and port 8080" -ForegroundColor Green 
                Write-Host "Login Username and PAssword is admin" -ForegroundColor Green 
@@ -50,7 +50,7 @@ For ($i=0; $i -le $mystring.Count; $i++) {
                               
   Jenkins     {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
                -VMName $vm -Name "myCustom123" `
-               -FileUri "https://raw.githubusercontent.com/paddy6987/jenkinsaspass/master/install.ps1" `
+               -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/install.ps1" `
                -Run "install.ps1" `
                -Location $varloc
                Write-Host "Login from browser with $IP and port 80" -ForegroundColor Green 
@@ -60,8 +60,8 @@ For ($i=0; $i -le $mystring.Count; $i++) {
                                }
   Sonarqube   {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
                -VMName $vm -Name "myCustom123" `
-               -FileUri "https://raw.githubusercontent.com/paddy6987/jenkinsaspass/master/installsonarqube.ps1" `
-               -Run "installsonarqube.ps1" `
+               -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/sonarqube/install.ps1" `
+               -Run "install.ps1" `
                -Location $varloc 
                Write-Host "Login from browser with $IP and port 9090" -ForegroundColor Green 
                Write-Host "Login Username and PAssword is admin" -ForegroundColor Green
