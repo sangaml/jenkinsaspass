@@ -1,6 +1,8 @@
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
 Start-BitsTransfer –Source 'https://jenkinsaspass.blob.core.windows.net/software/artifactory-oss-6.5.2.zip' `
 -Destination 'D:\'
+
 Start-BitsTransfer –Source 'https://jenkinsaspass.blob.core.windows.net/software/jre-8u191-windows-x64.exe' `
 -Destination 'D:\'
 
@@ -31,4 +33,5 @@ unzip "D:\artifactory-oss-6.5.2.zip" "D:\"
 D:\artifactory-oss-6.5.2\bin\run.vbs
 
 Write-Host "Login from browser with port 8081" -ForegroundColor Green 
+
 Write-Host "Login Username and PAssword is admin" -ForegroundColor Green
