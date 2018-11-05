@@ -653,7 +653,7 @@
       "settings": {
         "configuration": {
           "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardening.zip",
-          "script": "dscfw.ps1",
+          "script": "hardening.ps1",
           "function": "hardening"
         }
       }
@@ -714,7 +714,7 @@
             "settings": {
               "configuration": {
                 "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardening.zip",
-                "script": "dscfw.ps1",
+                "script": "hardening.ps1",
                 "function": "hardening"
               }
             }
