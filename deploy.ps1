@@ -11,25 +11,27 @@ $mystring = New-Object 'System.Collections.Generic.List[String]'
 $UserInputList = $Software.Split(",")| ForEach {
   $mystring.Add($_)
 }
-
+#vm creation
 New-AzureRmResourceGroup -Name loadbalancer -Location "centralus"
 $RG = "loadbalancer"
 New-AzureRmResourceGroupDeployment -Name loadbalancer -ResourceGroupName $RG `
  -TemplateUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.json" `
  -TemplateParameterUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.parameters.json"
  
-
-#vm creation
-
-
- start-sleep 380
+start-sleep 380
 
 $varloc = (Get-AzureRmResourceGroup -Name $RG).Location
 
 $vm =(Get-AzureRmResource  -ResourceGroupName $RG  -ResourceType Microsoft.Compute/virtualMachines).Name[1]
-$IP = (Get-AzureRmPublicIpAddress -Name mypublicIP -ResourceGroupName loadbalancer1).IpAddress
-
-
+$IP = (Get-AzureRmPublicIpAddress -Name mypublicIP -ResourceGroupName $RG).IpAddress
+#Insatlling JAVA
+Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
+               -VMName $vm -Name "myCustom123" `
+               -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/installjava.ps1" `
+               -Run "installjava.ps1" `
+               -Location $varloc 
+               start-sleep 260
+               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name myCustom123  -Force
 #Loop for VM Extension 
 
 For ($i=0; $i -le $mystring.Count; $i++) {
