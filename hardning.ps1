@@ -1,4 +1,4 @@
-Configuration elkhardening {
+Configuration hardening {
 param
    (
    # Target nodes to apply the configuration
@@ -31,3 +31,4 @@ Node $NodeName
 
 }
 }
+hardening
