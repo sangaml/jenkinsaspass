@@ -652,7 +652,7 @@
       "autoUpgradeMinorVersion": true,
       "settings": {
         "configuration": {
-          "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.zip",
+          "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardening.zip",
           "script": "hardning.ps1",
           "function": "hardening"
         }
@@ -713,7 +713,7 @@
             "autoUpgradeMinorVersion": true,
             "settings": {
               "configuration": {
-                "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.zip",
+                "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardening.zip",
                 "script": "hardning.ps1",
                 "function": "hardening"
               }
