@@ -637,6 +637,27 @@
           }
         }
 },
+{
+  "type": "Microsoft.Compute/virtualMachines/extensions",
+  "name": "[concat(parameters('vmNamePrefix'),'/Microsoft.Powershell.DSC')]",
+  "apiVersion": "2018-04-01",
+  "location": "[resourceGroup().location]",
+  "dependsOn": [
+      "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'))]"
+  ],
+  "properties": {
+      "publisher": "Microsoft.Powershell",
+      "type": "DSC",
+      "typeHandlerVersion": "2.76",
+      "autoUpgradeMinorVersion": true,
+      "settings": {
+          "configurationArguments": {
+              "RegistrationUrl" : "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.ps1",
+              "NodeConfigurationName" : "parameters('vmNamePrefix')"
+          }
+      }
+  }
+},
       {
         "apiVersion": "2018-06-01",
         "type": "Microsoft.Compute/virtualMachines",
@@ -675,7 +696,29 @@
             ]
           }
         }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('jumpvmNamePrefix'),'/Microsoft.Powershell.DSC')]",
+        "apiVersion": "2018-04-01",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('jumpvmNamePrefix'))]"
+        ],
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.76",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "configurationArguments": {
+                    "RegistrationUrl" : "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.ps1",
+                    "NodeConfigurationName" : "parameters('jumpnicNamePrefix')"
+                }
+            }
+        }
       }
+      
 
     ]
   }
