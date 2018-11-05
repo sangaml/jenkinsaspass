@@ -31,4 +31,3 @@ Node $NodeName
 
 }
 }
-hardening
