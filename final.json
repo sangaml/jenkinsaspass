@@ -651,10 +651,11 @@
       "typeHandlerVersion": "2.76",
       "autoUpgradeMinorVersion": true,
       "settings": {
-          "configurationArguments": {
-              "RegistrationUrl" : "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.ps1",
-              "NodeConfigurationName" : "parameters('vmNamePrefix')"
-          }
+        "configuration": {
+          "url": "https://jenkinsaspass.blob.core.windows.net/software/dscfw.zip",
+          "script": "hardning.ps1",
+          "function": "hardening"
+        }
       }
   }
 },
@@ -711,10 +712,11 @@
             "typeHandlerVersion": "2.76",
             "autoUpgradeMinorVersion": true,
             "settings": {
-                "configurationArguments": {
-                    "RegistrationUrl" : "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardning.ps1",
-                    "NodeConfigurationName" : "parameters('jumpnicNamePrefix')"
-                }
+              "configuration": {
+                "url": "https://jenkinsaspass.blob.core.windows.net/software/dscfw.zip",
+                "script": "hardning.ps1",
+                "function": "hardening"
+              }
             }
         }
       }
