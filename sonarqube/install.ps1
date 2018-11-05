@@ -21,8 +21,8 @@ $ExeArgs = @(
    "SPONSORS=0"
 )
 Start-Process $Exe -ArgumentList $ExeArgs -NoNewWindow -Wait 
-
-Start-Sleep 60
+Restart-Computer
+Start-Sleep 120
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 function unzip {
