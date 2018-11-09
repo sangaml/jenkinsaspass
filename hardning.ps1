@@ -5,8 +5,7 @@ param
    [string[]]$NodeName = 'localhost'
    )
 # Import the module that defines custom resources
-   Import-DscResource -ModuleName PSDesiredStateConfiguration
-   Import-DscResource -ModuleName RemoteFileManagement
+   Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
 
 Node $NodeName
 {
