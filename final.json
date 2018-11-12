@@ -601,7 +601,7 @@
     {
       "apiVersion": "2018-06-01",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[toLower(concat(parameters('vmNamePrefix'), uniqueString(resourceGroup().id)))]",
+      "name": "[concat(parameters('vmNamePrefix'))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
