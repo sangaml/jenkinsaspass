@@ -1,37 +1,46 @@
-$start_time = Get-Date
-Write-Host "Initiating PaaS  Deployment...............
+
+Write-Host "Initiating PaaS  Deployment ...
 " -ForegroundColor Green
 $Software = Read-Host -Prompt "Enter Software Name to have custom VM(Separated with comma):
-                                Jenkins
-                                Artifactory
-                                Sonarqube 
-                                "
+                               Jenkins
+                               Artifactory
+                               Sonarqube 
+                               "
 
 $mystring = New-Object 'System.Collections.Generic.List[String]'
-$UserInputList = $Software.Split(",")| ForEach {
-  $mystring.Add($_)
+$UserInputList = $Software.Split(",")| ForEach {   
+ $value=$_
+ if($value.ToLower() -eq "jenkins" -or  $value.ToLower() -eq "artifactory" -or  $value.ToLower() -eq "sonarqube")
+ {
+ $mystring.Add($_)
+ }
+ else{
+ Write-Host "please enter valid Software Name like Jenkins,Artifactory,Sonarqube"
+  break
+ }
 }
+$customscriptname = "mycustomscript"
+$vm = "softwareVM"
+$RG = "jenkinsaspaas"
+$location = "centralus"
+New-AzureRmResourceGroup -Name $RG -Location $location
 #vm creation
-New-AzureRmResourceGroup -Name loadbalancer -Location "centralus"
-$RG = "loadbalancer"
-New-AzureRmResourceGroupDeployment -Name loadbalancer -ResourceGroupName $RG `
+New-AzureRmResourceGroupDeployment -Name jenkinsaspaas -ResourceGroupName $RG `
  -TemplateUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.json" `
  -TemplateParameterUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.parameters.json"
- 
-start-sleep 380
 
-$varloc = (Get-AzureRmResourceGroup -Name $RG).Location
-
-$vm =(Get-AzureRmResource  -ResourceGroupName $RG  -ResourceType Microsoft.Compute/virtualMachines).Name[1]
 $IP = (Get-AzureRmPublicIpAddress -Name mypublicIP -ResourceGroupName $RG).IpAddress
 #Insatlling JAVA
+if ($value.ToLower() -eq "artifactory" -or  $value.ToLower() -eq "sonarqube") {
+Write-Host "Installing Java ..." -ForegroundColor Green
 Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
-               -VMName $vm -Name "myCustom123" `
+               -VMName $vm -Name $customscriptname `
                -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/installjava.ps1" `
                -Run "installjava.ps1" `
-               -Location $varloc 
-               start-sleep 260
-               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name myCustom123  -Force
+               -Location $location 
+               start-sleep 60
+               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name $customscriptname  -Force
+}
 #Loop for VM Extension 
 
 For ($i=0; $i -le $mystring.Count; $i++) {
@@ -39,37 +48,36 @@ For ($i=0; $i -le $mystring.Count; $i++) {
   switch ( $mystring[$i])
  {
 
-  Artifactory {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
-               -VMName $vm -Name "myCustom123" `
+  Artifactory {  Write-Host "Installing Artifactory ..." -ForegroundColor Green
+               Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
+               -VMName $vm -Name $customscriptname `
                -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/artifactory/install.ps1" `
                -Run "install.ps1" `
-               -Location $varloc 
+               -Location $location 
                Write-Host "Login from browser with $IP and port 8080" -ForegroundColor Green 
-               Write-Host "Login Username and PAssword is admin" -ForegroundColor Green 
-               start-sleep 220 
-               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name myCustom123   -Force
+               Write-Host "Login Username is admin and PAssword is password" -ForegroundColor Green 
+               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name $customscriptname   -Force
                }
                               
-  Jenkins     {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
-               -VMName $vm -Name "myCustom123" `
-               -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/install.ps1" `
-               -Run "install.ps1" `
-               -Location $varloc
-               Write-Host "Login from browser with $IP and port 80" -ForegroundColor Green 
-               Write-Host "Login Username and PAssword will be sent to user" -ForegroundColor Green
-               start-sleep 80 
-               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name myCustom123   -Force
+  Jenkins     { Write-Host "Installing Jenkins ..." -ForegroundColor Green
+                 Invoke-AzureRmVMRunCommand -ResourceGroupName $RG -Name $vm `
+                -CommandId 'RunPowerShellScript' -ScriptPath 'D:\POC29-11\scripts\jenkins.ps1'
+                Write-Host "Login from browser with $IP and port 80" -ForegroundColor Green
                                }
-  Sonarqube   {  Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
-               -VMName $vm -Name "myCustom123" `
+  Sonarqube   { Write-Host "Installing Sonarqube ..." -ForegroundColor Green
+                 Set-AzureRmVMCustomScriptExtension -ResourceGroupName $RG `
+               -VMName $vm -Name $customscriptname `
                -FileUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/sonarqube/install.ps1" `
                -Run "install.ps1" `
-               -Location $varloc 
+               -Location $location 
                Write-Host "Login from browser with $IP and port 9090" -ForegroundColor Green 
                Write-Host "Login Username and PAssword is admin" -ForegroundColor Green
-               start-sleep 240 
-               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name myCustom123   -Force
+               Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name $customscriptname   -Force
                                }
  } 
  }
- write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+ if ($value.ToLower() -eq "jenkins") {
+ $password = Invoke-AzureRmVMRunCommand -ResourceGroupName $RG -Name $vm -CommandId 'RunPowerShellScript' -ScriptPath 'D:\POC29-11\getcontent.ps1'
+ $pass = ($password).Value[0].Message
+ Write-Host " Initial Jenkins Password is $pass " -ForegroundColor Green
+ }
