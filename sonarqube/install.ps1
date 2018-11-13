@@ -6,4 +6,4 @@ function unzip {
 }
 unzip "D:\sonarqube-6.7.5.zip" "D:\"
 
-D:\sonarqube-6.7.5\bin\windows-x86-64\StartSonar.bat
+D:\sonarqube-6.7.5\bin\windows-x86-64\run.vbs
