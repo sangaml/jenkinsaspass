@@ -26,13 +26,7 @@
         "description": "Admin username"
       }
     },
-    "jumpadminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Admin password"
-      }
-    },
-    "adminPassword": {
+    "vmPassword": {
       "type": "securestring",
       "metadata": {
         "description": "Admin password"
@@ -170,6 +164,7 @@
       "name": "[parameters('storageAccountName')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
+      "comments": "Storage for Software server VM",
       "properties": {
         "accountType": "[variables('storageAccountType')]"
       }
@@ -179,6 +174,7 @@
       "name": "[parameters('jumpstorageAccountName')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
+      "comments": "Storage for Jump server VM",
       "properties": {
         "accountType": "[variables('jumpstorageAccountType')]"
       }
@@ -188,6 +184,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('publicIPAddressName')]",
       "location": "[resourceGroup().location]",
+      "comments": "Public IP for Load Balancer",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
@@ -200,6 +197,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('jumppublicIPAddressName')]",
       "location": "[resourceGroup().location]",
+      "comments": "Public IP for Jump Server",
       "properties": {
         "publicIPAllocationMethod": "[variables('jumppublicIPAddressType')]",
         "dnsSettings": {
@@ -212,6 +210,7 @@
         "type": "Microsoft.Network/networkSecurityGroups",
         "name": "[variables('networkSecurityGroupName')]",
         "location": "[resourceGroup().location]",
+        "comments": "NSG for Software server",
         "properties": {
           "securityRules": [
             {
@@ -278,6 +277,7 @@
         "name": "[concat(variables('networkSecurityGroupName'), '/', variables('jenkinsRulesname'))]",
         "apiVersion": "2018-02-01",
         "location": "[resourceGroup().location]",
+        "comments": "Security rules for Jenkins",
         "scale": null,
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -294,11 +294,13 @@
             "direction": "Inbound"
         }
         
-    },{
+    },
+    {
       "type": "Microsoft.Network/networkSecurityGroups/securityRules",
       "name": "[concat(variables('networkSecurityGroupName'), '/', variables('artifactoryRulesname'))]",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
+      "comments": "Security rules for Artifactory",
       "scale": null,
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -315,11 +317,13 @@
           "direction": "Inbound"
       }
       
-  },{
+  },
+  {
     "type": "Microsoft.Network/networkSecurityGroups/securityRules",
     "name": "[concat(variables('networkSecurityGroupName'), '/', variables('sonarrulesname'))]",
     "apiVersion": "2018-02-01",
     "location": "[resourceGroup().location]",
+    "comments": "Security rules for SonarQube",
     "scale": null,
     "dependsOn": [
       "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
@@ -342,6 +346,7 @@
           "type": "Microsoft.Network/networkSecurityGroups",
           "name": "[variables('jumpnetworkSecurityGroupName')]",
           "location": "[resourceGroup().location]",
+          "comments": "NSG for Jump Server RDP",
           "properties": {
             "securityRules": [
               {
@@ -366,6 +371,7 @@
         "name": "[concat(variables('jumpnetworkSecurityGroupName'), '/', variables('securityRulesname'))]",
         "apiVersion": "2018-02-01",
         "location": "[resourceGroup().location]",
+        "comments": "Security Rule for Jump Server RDP",
         "scale": null,
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpnetworkSecurityGroupName'))]"
@@ -388,6 +394,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('vnetName')]",
       "location": "[resourceGroup().location]",
+      "comments": "VNet for both Servers, and Associate subnets with VNet",
       "dependsOn": [
           "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
           "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('jumpnetworkSecurityGroupName'))]"
@@ -425,7 +432,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(parameters('nicNamePrefix'))]",
       "location": "[resourceGroup().location]",
-      
+      "comments": "NIC for software server",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -458,6 +465,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(parameters('jumpnicNamePrefix'))]",
       "location": "[resourceGroup().location]",
+      "comments": "NIC for Jump server",
       "dependsOn": [
           "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('jumppublicIPAddressName'))]",
           "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('jumpnetworkSecurityGroupName'))]",
@@ -488,6 +496,7 @@
       "name": "[parameters('lbName')]",
       "type": "Microsoft.Network/loadBalancers",
       "location": "[resourceGroup().location]",
+      "comments": "Creating LB and associate rules",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"
       ],
@@ -603,6 +612,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(parameters('vmNamePrefix'))]",
       "location": "[resourceGroup().location]",
+      "comments": "Creating VM for software server",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'))]"
@@ -614,7 +624,7 @@
         "osProfile": {
           "computerName": "[concat(parameters('vmNamePrefix'))]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]",
+          "adminPassword": "[parameters('vmPassword')]",
           "allowExtensionOperations": true
         },
         "storageProfile": {
@@ -642,6 +652,7 @@
 "name": "[concat(parameters('vmNamePrefix'),'/Microsoft.Powershell.DSC')]",
 "apiVersion": "2018-04-01",
 "location": "[resourceGroup().location]",
+"comments": "Adding custom extention for hardening software server",
 "dependsOn": [
     "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'))]"
 ],
@@ -664,6 +675,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(parameters('jumpvmNamePrefix'))]",
       "location": "[resourceGroup().location]",
+      "comments": "Creating Jump server",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', parameters('jumpstorageAccountName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', parameters('jumpnicNamePrefix'))]"
@@ -676,7 +688,7 @@
         "osProfile": {
           "computerName": "[concat(parameters('jumpvmNamePrefix'))]",
           "adminUsername": "[parameters('jumpadminUsername')]",
-          "adminPassword": "[parameters('jumpadminPassword')]"
+          "adminPassword": "[parameters('vmPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -703,6 +715,7 @@
       "name": "[concat(parameters('jumpvmNamePrefix'),'/Microsoft.Powershell.DSC')]",
       "apiVersion": "2018-04-01",
       "location": "[resourceGroup().location]",
+      "comments": "Adding custom extention for hardening software server",
       "dependsOn": [
           "[concat('Microsoft.Compute/virtualMachines/', parameters('jumpvmNamePrefix'))]"
       ],
