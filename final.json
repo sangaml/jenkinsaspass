@@ -614,7 +614,7 @@
       "location": "[resourceGroup().location]",
       "comments": "Creating VM for software server",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('softwarestorage'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'))]"
       ],
       "properties": {
