@@ -8,6 +8,9 @@
       "adminUsername": {
         "value": "admin123"
       },
+      "vmPassword": {
+        "value": "Password@123"
+      },
       "dnsNameforLBIP": {
         "value": "vmlb64e71a665868"
       },
