@@ -8,17 +8,11 @@
       "adminUsername": {
         "value": "admin123"
       },
-      "adminPassword": {
-        "value": "Admin123_!"
-      },
       "dnsNameforLBIP": {
         "value": "vmlb64e71a665868"
       },
       "jumpadminUsername": {
         "value": "jumpuser"
-      },
-      "jumpadminPassword": {
-        "value": "Password@123"
       },
       "jumpdnsNameforLBIP": {
         "value": "vmlb64e71a66586"
