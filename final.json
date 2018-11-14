@@ -149,7 +149,7 @@
     "jumpsubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables ('jumpsubnetName'))]",
     "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]",
     "jumppublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('jumppublicIPAddressName'))]",
-    "numberOfInstances": 1,
+    "softwarestorage": "[toLower( concat( parameters('storageAccountName'), uniqueString(resourceGroup().id) ) )]", 
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('lbName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
     "networkSecurityGroupName": "softwarnsg",
@@ -161,7 +161,7 @@
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageAccountName')]",
+      "name": "[parameters('softwarestorage')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "comments": "Storage for Software server VM",
