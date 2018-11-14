@@ -2,7 +2,7 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccountName": {
+      "storageAccountName": {
         "value": "softwares"
       },
       "adminUsername": {
@@ -21,7 +21,7 @@
         "value": "vmlb64e71a66586"
       },
       "jumpstorageAccountName": {
-        "value": "vmlbdced688awwqq"
+        "value": "jump"
 
       }
     }
