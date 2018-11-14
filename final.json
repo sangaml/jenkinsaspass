@@ -161,7 +161,7 @@
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('softwarestorage')]",
+      "name": "[variables('softwarestorage')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "comments": "Storage for Software server VM",
