@@ -44,14 +44,14 @@
         "description": "DNS for Load Balancer IP"
       }
     },
-    "vmNamePrefix": {
+    "softvmNamePrefix": {
       "type": "string",
-      "defaultValue": "softwareVM",
+      "defaultValue": "softVM",
       "metadata": {
         "description": "Prefix to use for VM names"
       }
     },
-    "jumpvmNamePrefix": {
+    "jumpvmName": {
       "type": "string",
       "defaultValue": "jumpVM",
       "metadata": {
@@ -79,7 +79,7 @@
         "description": "Image SKU"
       }
     },
-    "lbName": {
+    "plbname": {
       "type": "string",
       "defaultValue": "myLB",
       "metadata": {
@@ -102,14 +102,14 @@
     },
     "publicIPAddressName": {
       "type": "string",
-      "defaultValue": "LBPublicIP",
+      "defaultValue": "LBPIP",
       "metadata": {
         "description": "Public IP Name"
       }
     },
     "jumppublicIPAddressName": {
       "type": "string",
-      "defaultValue": "jumpmyPublicIP",
+      "defaultValue": "jumpPIP",
       "metadata": {
         "description": "Public IP Name"
       }
@@ -127,32 +127,80 @@
       "metadata": {
         "description": "Size of the VM"
       }
+    },
+    "softnetworknsg": {
+      "type": "string",
+      "defaultValue": "software",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "jumpnetworknsg": {
+      "type": "string",
+      "defaultValue": "jumpnsg",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "securityjenkins": {
+      "type": "string",
+      "defaultValue": "jenkins",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "securityartifact": {
+      "type": "string",
+      "defaultValue": "artifact",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "securitysonar": {
+      "type": "string",
+      "defaultValue": "sonar",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "securityrdp": {
+      "type": "string",
+      "defaultValue": "jrdp"
     }
   },
   "variables": {
     "storageAccountType": "Standard_LRS",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "privatesub",
+    "softnic": "[toLower(concat(parameters('nicNamePrefix'), uniqueString(resourceGroup().id)))]",
+    "vmNamePrefix": "[toLower(concat(parameters('softvmNamePrefix'), uniqueString(resourceGroup().id)))]",
+    "jumpvmNamePrefix": "[toLower(concat(parameters('jumpvmName'), uniqueString(resourceGroup().id)))]",
+    "jumpnic": "[toLower(concat(parameters('jumpnicNamePrefix'), uniqueString(resourceGroup().id)))]",
+    "lbname": "[toLower(concat(parameters('plbname'), uniqueString(resourceGroup().id)))]",
     "subnetPrefix": "10.0.0.0/24",
     "jumpsubnetPrefix": "10.0.1.0/24",
     "extentionname": "mycustomscript",
     "publicIPAddressType": "Dynamic",
-    "securityRulesname": "rdpsecurity",
+    "securityRulesname": "[toLower(concat(parameters('securityrdp'), uniqueString(resourceGroup().id)))]",
     "jumppublicIPAddressType": "Dynamic",
     "jumpstorageAccountType": "Standard_LRS",
-    "jenkinsRulesname": "jenkinssec",
-    "artifactoryRulesname": "artifactosec",
-    "sonarrulesname": "sonarsec",
-    "jumpnetworkSecurityGroupName": "jumpnsg",
+    "jenkinsRulesname": "[toLower(concat(parameters('securityjenkins'), uniqueString(resourceGroup().id)))]",
+    "artifactoryRulesname": "[toLower(concat(parameters('securityartifact'), uniqueString(resourceGroup().id)))]",
+    "sonarrulesname": "[toLower(concat(parameters('securitysonar'), uniqueString(resourceGroup().id)))]",
+    "jumpnetworkSecurityGroupName": "[toLower(concat(parameters('jumpnetworknsg'), uniqueString(resourceGroup().id)))]",
     "jumpsubnetName": "publicsub",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables ('subnetName'))]",
-    "jumpsubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables ('jumpsubnetName'))]",
-    "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]",
-    "jumppublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('jumppublicIPAddressName'))]",
-    "softwarestorage": "[toLower( concat( parameters('storageAccountName'), uniqueString(resourceGroup().id) ) )]", 
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('lbName'))]",
+    "lbpublicip": "[toLower(concat(parameters('publicIPAddressName'), uniqueString(resourceGroup().id)))]",
+    "myvnet": "[toLower(concat(parameters('vnetName'), uniqueString(resourceGroup().id)))]",
+    "jumppublicip": "[toLower(concat(parameters('jumppublicIPAddressName'), uniqueString(resourceGroup().id)))]",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('myvnet'), variables ('subnetName'))]",
+    "jumpsubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('myvnet'), variables ('jumpsubnetName'))]",
+    "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbpublicip'))]",
+    "jumppublicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumppublicip'))]",
+    "softwarestorage": "[toLower( concat( parameters('storageAccountName'), uniqueString(resourceGroup().id)))]",
+    "jumpstorage": "[toLower(concat(parameters('jumpstorageAccountName'), uniqueString(resourceGroup().id)))]",
+    "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
-    "networkSecurityGroupName": "softwarnsg",
+    "networkSecurityGroupName": "[toLower(concat(parameters('softnetworknsg'), uniqueString(resourceGroup().id)))]",
     "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
     "lbProbeIDj": "[concat(variables('lbID'),'/probes/jenkins')]",
     "lbProbeIDa": "[concat(variables('lbID'),'/probes/artifactory')]",
@@ -171,7 +219,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('jumpstorageAccountName')]",
+      "name": "[variables('jumpstorage')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "comments": "Storage for Jump server VM",
@@ -182,7 +230,7 @@
     {
       "apiVersion": "2018-02-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[parameters('publicIPAddressName')]",
+      "name": "[variables('lbpublicip')]",
       "location": "[resourceGroup().location]",
       "comments": "Public IP for Load Balancer",
       "properties": {
@@ -195,7 +243,7 @@
     {
       "apiVersion": "2018-02-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[parameters('jumppublicIPAddressName')]",
+      "name": "[variables('jumppublicip')]",
       "location": "[resourceGroup().location]",
       "comments": "Public IP for Jump Server",
       "properties": {
@@ -392,7 +440,7 @@
     {
       "apiVersion": "2018-02-01",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[parameters('vnetName')]",
+      "name": "[variables('myvnet')]",
       "location": "[resourceGroup().location]",
       "comments": "VNet for both Servers, and Associate subnets with VNet",
       "dependsOn": [
@@ -430,13 +478,13 @@
     {
       "apiVersion": "2018-02-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(parameters('nicNamePrefix'))]",
+      "name": "[variables('softnic')]",
       "location": "[resourceGroup().location]",
       "comments": "NIC for software server",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('myvnet'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -463,13 +511,13 @@
     {
       "apiVersion": "2018-02-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(parameters('jumpnicNamePrefix'))]",
+      "name": "[variables('jumpnic')]",
       "location": "[resourceGroup().location]",
       "comments": "NIC for Jump server",
       "dependsOn": [
-          "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('jumppublicIPAddressName'))]",
+          "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumppublicip'))]",
           "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('jumpnetworkSecurityGroupName'))]",
-          "[resourceId('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+          "[resourceId('Microsoft.Network/virtualNetworks/', variables('myvnet'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -478,7 +526,7 @@
             "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "publicIPAddress": {
-                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('jumppublicIPAddressName'))]"
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumppublicip'))]"
                 },
               "subnet": {
                 "id": "[variables('jumpsubnetRef')]"
@@ -493,12 +541,12 @@
     },
     {
       "apiVersion": "2018-02-01",
-      "name": "[parameters('lbName')]",
+      "name": "[variables('lbName')]",
       "type": "Microsoft.Network/loadBalancers",
       "location": "[resourceGroup().location]",
       "comments": "Creating LB and associate rules",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('lbpublicip'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -610,19 +658,19 @@
     {
       "apiVersion": "2018-06-01",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(parameters('vmNamePrefix'))]",
+      "name": "[variables('vmNamePrefix')]",
       "location": "[resourceGroup().location]",
       "comments": "Creating VM for software server",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('softwarestorage'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('nicNamePrefix'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('softnic'))]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "Standard_DS1_v2"
         },
         "osProfile": {
-          "computerName": "[concat(parameters('vmNamePrefix'))]",
+          "computerName": "[concat(variables('vmNamePrefix'))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('vmPassword')]",
           "allowExtensionOperations": true
@@ -641,7 +689,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicNamePrefix'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('softnic'))]"
             }
           ]
         }
@@ -649,12 +697,12 @@
 },
 {
 "type": "Microsoft.Compute/virtualMachines/extensions",
-"name": "[concat(parameters('vmNamePrefix'),'/Microsoft.Powershell.DSC')]",
+"name": "[concat(variables('vmNamePrefix'),'/Microsoft.Powershell.DSC')]",
 "apiVersion": "2018-04-01",
 "location": "[resourceGroup().location]",
 "comments": "Adding custom extention for hardening software server",
 "dependsOn": [
-    "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'))]"
+    "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
 ],
 "properties": {
     "publisher": "Microsoft.Powershell",
@@ -673,12 +721,12 @@
     {
       "apiVersion": "2018-06-01",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(parameters('jumpvmNamePrefix'))]",
+      "name": "[concat(variables('jumpvmNamePrefix'))]",
       "location": "[resourceGroup().location]",
       "comments": "Creating Jump server",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', parameters('jumpstorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('jumpnicNamePrefix'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('jumpstorage'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('jumpnic'))]"
       
       ],
       "properties": {
@@ -686,7 +734,7 @@
           "vmSize": "Standard_DS1_v2"
         },
         "osProfile": {
-          "computerName": "[concat(parameters('jumpvmNamePrefix'))]",
+          "computerName": "[concat(variables('jumpvmNamePrefix'))]",
           "adminUsername": "[parameters('jumpadminUsername')]",
           "adminPassword": "[parameters('vmPassword')]"
         },
@@ -704,7 +752,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('jumpnicNamePrefix'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('jumpnic'))]"
             }
           ]
         }
@@ -712,12 +760,12 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('jumpvmNamePrefix'),'/Microsoft.Powershell.DSC')]",
+      "name": "[concat(variables('jumpvmNamePrefix'),'/Microsoft.Powershell.DSC')]",
       "apiVersion": "2018-04-01",
       "location": "[resourceGroup().location]",
       "comments": "Adding custom extention for hardening software server",
       "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', parameters('jumpvmNamePrefix'))]"
+          "[concat('Microsoft.Compute/virtualMachines/', variables('jumpvmNamePrefix'))]"
       ],
       "properties": {
           "publisher": "Microsoft.Powershell",
