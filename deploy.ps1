@@ -22,8 +22,8 @@ $UserInputList = $Software.Split(",")| ForEach {
 #Variables 
 $customscriptname = "mycustomscript"
 $location = "centralus"
-New-AzureRmResourceGroup -Name $RG -Location $location
 #vm creation
+New-AzureRmResourceGroup -Name $RG -Location $location
 New-AzureRmResourceGroupDeployment -Name jenkinsaspaas -ResourceGroupName $RG `
  -TemplateUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.json" `
  -TemplateParameterUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.parameters.json"
