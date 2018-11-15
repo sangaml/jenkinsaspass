@@ -1,6 +1,6 @@
-
 Write-Host "Initiating PaaS  Deployment ...
 " -ForegroundColor Green
+$RG = Read-Host -Prompt "Enter Resource Group Name"
 $Software = Read-Host -Prompt "Enter Software Name to have custom VM(Separated with comma):
                                Jenkins
                                Artifactory
@@ -21,16 +21,15 @@ $UserInputList = $Software.Split(",")| ForEach {
 }
 #Variables 
 $customscriptname = "mycustomscript"
-$vm = "softwareVM"
-$RG = "jenkinsaspaas"
 $location = "centralus"
 New-AzureRmResourceGroup -Name $RG -Location $location
 #vm creation
 New-AzureRmResourceGroupDeployment -Name jenkinsaspaas -ResourceGroupName $RG `
  -TemplateUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.json" `
  -TemplateParameterUri "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/final.parameters.json"
-
-$IP = (Get-AzureRmPublicIpAddress -Name LBPublicIP -ResourceGroupName $RG).IpAddress
+$vm = (Get-AzureRmResource -ResourceGroupName $RG -ResourceType Microsoft.Compute/virtualMachines).Name[1]
+$ipname = (Get-AzureRmResource  -ResourceGroupName $RG  -ResourceType Microsoft.Network/publicIPAddresses).Name[1]
+$IP = (Get-AzureRmPublicIpAddress -Name $ipname -ResourceGroupName $RG).IpAddress
 #Insatlling JAVA
 if ($value.ToLower() -eq "artifactory" -or  $value.ToLower() -eq "sonarqube") {
 Write-Host "Installing Java ..." -ForegroundColor Green
@@ -56,7 +55,7 @@ For ($i=0; $i -le $mystring.Count; $i++) {
                -Run "artifactory.ps1" `
                -Location $location 
                Write-Host "Login from browser with $IP and port 8080" -ForegroundColor Green 
-               Write-Host "Login Username is admin and PAssword is password" -ForegroundColor Green 
+               Write-Host "Login Username is admin and Password is password" -ForegroundColor Green 
                Remove-AzurermVMCustomScriptExtension -ResourceGroupName $RG -VMName $vm -Name $customscriptname -Force
                }
                               
