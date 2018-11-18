@@ -711,9 +711,9 @@
     "autoUpgradeMinorVersion": true,
     "settings": {
       "configuration": {
-        "url": "https://raw.githubusercontent.com/sangaml/jenkinsaspass/master/hardening.zip",
-        "script": "hardening.ps1",
-        "function": "hardening"
+        "url": "https://github.com/sangaml/jenkinsaspass/blob/master/artifactory/installnexsusartifactory.zip",
+        "script": "installnexsusartifactory.ps1",
+        "function": "Installartifactory"
       }
     }
 }
