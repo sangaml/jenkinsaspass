@@ -2,7 +2,7 @@ Configuration Installartifactory {
     Node localhost
      { 
     
-      Script Download-xActiveDirectory {  
+      Script Download-Software {  
         GetScript = {  
           @{Result = Test-Path 'D:\artifactory-oss-6.5.2.zip'}
           @{Result = Test-Path 'D:\jre-8u191-windows-x64.exe'}  
@@ -20,30 +20,26 @@ Configuration Installartifactory {
           Test-Path 'D:\artifactory-oss-6.5.2.zip'  
         }   
       } 
-      Archive Uncompress-xActiveDirectory {  
+      Archive Uncompress {  
         Ensure = 'Present'  
         Path = 'D:\artifactory-oss-6.5.2.zip'  
         Destination = 'D:\'  
-        DependsOn = '[Script]Download-xActiveDirectory'  
+        DependsOn = '[Script]Download-Software'  
       }
       Package InstallExe
       {
           Ensure          = "Present"
           Name            = "Install Java"
           Path            = "D:\jre-8u191-windows-x64.exe"
-          Arguments       = '/b"C:\Windows\Temp\PerforceClient" /S /V"/qn ALLUSERS=1 REBOOT=ReallySuppress"'
+          Arguments       = '/s REBOOT=0 SPONSORS=0 REMOVEOUTOFDATEJRES=0 INSTALL_SILENT=1 AUTO_UPDATE=0 EULA=0 /l*v "C:\Windows\Temp\jreInstaller.exe.log"'
           ProductId       = ''
-          DependsOn       = '[Script]Download-xActiveDirectory'
+          DependsOn       = '[Script]Download-Software'
       }
-      Script Startartifactory {
-        GetScript = {
-          }  
-          SetScript = { 
-            Invoke-Command -ScriptBlock {D:\artifactory-oss-6.5.2\bin\run.vbs}
-          }  
-          TestScript = { 
-          }
-        
-      }
+      Service CreateService
+    {
+        Name   = "artifactory"
+        Ensure = "Present"
+        Path   = "D:\artifactory-oss-6.5.2\bin\artifactory.bat"
+    }
     }  
-  }
+}
