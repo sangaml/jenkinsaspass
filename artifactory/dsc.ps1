@@ -1,14 +1,16 @@
-Configuration CopyDSCModuleRemotely {   
+Configuration Installartifactory {   
     Node localhost
      { 
     
       Script Download-xActiveDirectory {  
         GetScript = {  
-          @{Result = Test-Path 'D:\artifactory-oss-6.5.2.zip'}  
+          @{Result = Test-Path 'D:\artifactory-oss-6.5.2.zip'}
+          @{Result = Test-Path 'D:\jre-8u191-windows-x64.exe'}  
         }  
         SetScript = { 
+          Enable-PSRemoting -Force
           Invoke-WebRequest -Uri 'https://csgdfe49495dc73x47efxabf.blob.core.windows.net/grt/artifactory-oss-6.5.2.zip' -OutFile 'D:\artifactory-oss-6.5.2.zip'  
-          Invoke-WebRequest -Uri 'https://jenkinsaspasssto.blob.core.windows.net/software/jre-8u191-windows-x64.exe' -OutFile 'D:\jre-8u191-windows-x64.exe'
+          Invoke-WebRequest -Uri 'https://csgdfe49495dc73x47efxabf.blob.core.windows.net/grt/jre-8u191-windows-x64.exe' -OutFile 'D:\jre-8u191-windows-x64.exe'
           Unblock-File -Path 'D:\jre-8u191-windows-x64.exe'
           Unblock-File -Path 'D:\artifactory-oss-6.5.2.zip'  
             
